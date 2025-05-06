@@ -58,3 +58,35 @@ func NewEvent(line string) (Event, error) {
 		SourceString: line,
 	}, nil
 }
+
+func (e Event) String() string {
+	timeStr := e.Timestamp.Format(timeLayout)
+	var description string
+
+	switch e.EventID {
+	case EVENT_ID_COMPETITOR_REGISTERED: // 1
+		description = fmt.Sprintf("The competitor(%d) registered", e.CompetitorID)
+	case EVENT_ID_START_TIME_SET_BY_DRAW: // 2
+		description = fmt.Sprintf("The start time for the competitor(%d) was set by a draw to %s", e.CompetitorID, e.ExtraParams)
+	case EVENT_ID_COMPETITOR_ON_START_LINE: // 3
+		description = fmt.Sprintf("The competitor(%d) is on the start line", e.CompetitorID)
+	case EVENT_ID_COMPETITOR_STARTED: // 4
+		description = fmt.Sprintf("The competitor(%d) has started", e.CompetitorID)
+	case EVENT_ID_COMPETITOR_ON_FIRING_RANGE: // 5
+		description = fmt.Sprintf("The competitor(%d) is on the firing range(%s)", e.CompetitorID, e.ExtraParams)
+	case EVENT_ID_TARGET_HIT: // 6
+		description = fmt.Sprintf("The target(%s) has been hit by competitor(%d)", e.ExtraParams, e.CompetitorID)
+	case EVENT_ID_COMPETITOR_LEFT_FIRING_RANGE: // 7
+		description = fmt.Sprintf("The competitor(%d) left the firing range", e.CompetitorID)
+	case EVENT_ID_COMPETITOR_ENTERED_PENALTY: // 8
+		description = fmt.Sprintf("The competitor(%d) entered the penalty laps", e.CompetitorID)
+	case EVENT_ID_COMPETITOR_LEFT_PENALTY: // 9
+		description = fmt.Sprintf("The competitor(%d) left the penalty laps", e.CompetitorID)
+	case EVENT_ID_COMPETITOR_ENDED_MAIN_LAP: // 10
+		description = fmt.Sprintf("The competitor(%d) ended the main lap", e.CompetitorID)
+	case EVENT_ID_COMPETITOR_CANNOT_CONTINUE: // 11
+		description = fmt.Sprintf("The competitor(%d) can`t continue: %s", e.CompetitorID, e.ExtraParams)
+	}
+
+	return fmt.Sprintf("[%s] %s", timeStr, description)
+}

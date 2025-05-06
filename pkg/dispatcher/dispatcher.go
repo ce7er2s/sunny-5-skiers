@@ -90,11 +90,7 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 			delete(competitorsWatch, evt.CompetitorID)
 		}
 
-		// evt_json, err := json.Marshal(evt)
-		// if err != nil {
-		//	log.Fatal(fmt.Sprintf("Can't convert Event to JSON: %s", err.Error()))
-		// }
-		// fmt.Println(string(evt_json))
+		fmt.Println(evt.String())
 	}
 
 	var reports []Report
