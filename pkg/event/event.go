@@ -23,9 +23,9 @@ type Event struct {
 	// исходная из входящих
 }
 
-func NewEvent(line string) (*Event, error) {
+func NewEvent(line string) (Event, error) {
 	if !eventRegexp.MatchString(line) {
-		return nil, fmt.Errorf("String doesn't match event format.")
+		return Event{}, fmt.Errorf("String doesn't match event format.")
 	}
 
 	match := eventRegexp.FindStringSubmatch(line)
@@ -36,20 +36,20 @@ func NewEvent(line string) (*Event, error) {
 
 	timestamp, err := time.Parse(timeLayout, fields["TimeStamp"])
 	if err != nil {
-		return nil, fmt.Errorf("Can't parse timestamp from \"%s\": %s", fields["TimeStamp"], err.Error())
+		return Event{}, fmt.Errorf("Can't parse timestamp from \"%s\": %s", fields["TimeStamp"], err.Error())
 	}
 
 	eventId, err := strconv.Atoi(fields["EventID"])
 	if err != nil {
-		return nil, fmt.Errorf("Can't parse EventID from \"%s\": %s", fields["EventID"], err.Error())
+		return Event{}, fmt.Errorf("Can't parse EventID from \"%s\": %s", fields["EventID"], err.Error())
 	}
 
 	competitorId, err := strconv.Atoi(fields["CompetitorID"])
 	if err != nil {
-		return nil, fmt.Errorf("Can't parse CompetitorID from \"%s\": %s", fields["CompetitorID"], err.Error())
+		return Event{}, fmt.Errorf("Can't parse CompetitorID from \"%s\": %s", fields["CompetitorID"], err.Error())
 	}
 
-	return &Event{
+	return Event{
 		Timestamp:    timestamp,
 		EventID:      eventId,
 		CompetitorID: competitorId,
