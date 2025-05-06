@@ -11,7 +11,6 @@ import (
 )
 
 func Dispatch(EventSource io.Reader) {
-	var events []event.Event
 	bufEventSource := bufio.NewReader(EventSource)
 	for {
 		line, err := bufEventSource.ReadString('\n')
@@ -36,15 +35,10 @@ func Dispatch(EventSource io.Reader) {
 			continue
 		}
 
-		events = append(events, event)
-	}
-
-	for _, event := range events {
 		event_json, err := json.Marshal(event)
 		if err != nil {
 			log.Fatal(fmt.Sprintf("Can't convert Event to JSON: %s", err.Error()))
 		}
 		fmt.Println(string(event_json))
-
 	}
 }
