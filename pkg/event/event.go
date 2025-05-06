@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var eventRegexpString string = `^\[(?P<TimeStamp>\d{2}:\d{2}:\d{2}\.\d{3})\]\s+(?P<EventID>\d+)\s+(?P<CompetitorID>\d+)(?:\s+(?P<ExtraParams>[\w:\.]+)?)?$`
+var eventRegexpString string = `^\[(?P<TimeStamp>\d{2}:\d{2}:\d{2}\.\d{3})\]\s+(?P<EventID>\d+)\s+(?P<CompetitorID>\d+)(?:\s+(?P<ExtraParams>[ \w:\.]+)?)?$`
 var eventRegexp *regexp.Regexp = regexp.MustCompile(eventRegexpString)
 var timeLayout string = "15:04:05.000"
 

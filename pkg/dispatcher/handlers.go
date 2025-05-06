@@ -13,17 +13,6 @@ var timeLayout string = "15:04:05.000"
 
 type EventHandleFunc func(c *competitor.Competitor, e *event.Event) error
 
-// проверка сходится ли id события и участника
-// излишне?
-func checkCompetitorID(handler EventHandleFunc) EventHandleFunc {
-	return func(c *competitor.Competitor, e *event.Event) error {
-		if c.CompetitorID != e.CompetitorID {
-			return fmt.Errorf("Can't handle event: CompetitorID doesn't match with given competitor")
-		}
-		return handler(c, e)
-	}
-}
-
 // EventID = 1 (EVENT_ID_COMPETITOR_REGISTERED)
 // фактически обрабатывается в dispatcher
 func handleRegistration(_ *competitor.Competitor, _ *event.Event) error {
