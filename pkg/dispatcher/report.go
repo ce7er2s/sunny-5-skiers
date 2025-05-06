@@ -7,6 +7,12 @@ import (
 	"github.com/ce7er2s/sunny-5-skiers/pkg/competitor"
 )
 
+type Lap struct {
+	Time   time.Duration
+	Speed  float64
+	LapLen int
+}
+
 func (l Lap) String() string {
 	var t string
 	var s string
@@ -26,12 +32,6 @@ func (l Lap) String() string {
 	return fmt.Sprintf("{%s,%s}", t, s)
 }
 
-type Lap struct {
-	Time   time.Duration
-	Speed  float64
-	LapLen int
-}
-
 type Report struct {
 	Time         time.Time
 	Status       competitor.CompetitorStatusType
@@ -43,6 +43,7 @@ type Report struct {
 	PenaltyLapsCount int
 	ShotsTaken       int
 	ShotsHit         int
+	LapCount         int
 }
 
 func NewReport(c *competitor.Competitor, cfg Config) Report {
@@ -84,5 +85,6 @@ func NewReport(c *competitor.Competitor, cfg Config) Report {
 		PenaltyTime:      penaltyTime,
 		PenaltySpeed:     penaltySpeed,
 		PenaltyLapsCount: c.PenaltyLapsCount,
+		LapCount:         c.LapCount,
 	}
 }

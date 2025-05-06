@@ -115,7 +115,12 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 		// ewww stinky
 		fmt.Print("[")
 		for i, lap := range v.Laps {
-			fmt.Print(lap.String())
+			if i > cfg.Laps-v.LapCount-1 {
+				fmt.Print("{,}")
+			} else {
+				fmt.Print(lap.String())
+			}
+
 			if i != len(v.Laps)-1 {
 				fmt.Print(", ")
 			}

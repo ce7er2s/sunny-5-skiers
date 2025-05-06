@@ -54,7 +54,6 @@ func handleOnFiringRange(c *competitor.Competitor, e *event.Event) error {
 		return err
 	}
 
-	c.Timings[c.LapCount-1][1] = e.Timestamp
 	c.FiringRange = i - 1
 
 	var shotsAvailable int = 0
@@ -119,6 +118,7 @@ func handleLeftPentalty(c *competitor.Competitor, e *event.Event) error {
 
 // EventID = 10 (EVENT_ID_COMPETITOR_ENDED_MAIN_LAP)
 func handleEndMainLap(c *competitor.Competitor, e *event.Event) error {
+	c.Timings[c.LapCount-1][1] = e.Timestamp
 	c.LapCount -= 1
 
 	if c.LapCount == 0 {
