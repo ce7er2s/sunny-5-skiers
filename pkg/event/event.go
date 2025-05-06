@@ -1,14 +1,59 @@
-package event;
+package event
 
 import (
+	"fmt"
+	"regexp"
+	"strconv"
 	"time"
 )
 
-type Event struct {
-	Timestamp    time.Time
-	ID           int
-	CompetitorID int
-	ExtraParams  string
+var eventRegexpString string = `^\[(?P<TimeStamp>\d{2}:\d{2}:\d{2}\.\d{3})\]\s+(?P<EventID>\d+)\s+(?P<CompetitorID>\d+)(?:\s+(?P<ExtraParams>[\w:\.]+)?)?$`
+var eventRegexp *regexp.Regexp = regexp.MustCompile(eventRegexpString)
+var timeLayout string = "15:04:05.000"
 
-	SourceString string			// исходная из входящих
+// убрать json в конце -- используется для отладки
+
+type Event struct {
+	Timestamp    time.Time `json:"TimeStamp"`
+	EventID      int       `json:"EventID"`
+	CompetitorID int       `json:"CompetitorID"`
+	ExtraParams  string    `json:"ExtraParams"`
+
+	SourceString string `json:"SourceString"`
+	// исходная из входящих
+}
+
+func NewEvent(line string) (*Event, error) {
+	if !eventRegexp.MatchString(line) {
+		return nil, fmt.Errorf("String doesn't match event format.")
+	}
+
+	match := eventRegexp.FindStringSubmatch(line)
+	fields := make(map[string]string)
+	for i, name := range eventRegexp.SubexpNames() {
+		fields[name] = match[i]
+	}
+
+	timestamp, err := time.Parse(timeLayout, fields["TimeStamp"])
+	if err != nil {
+		return nil, fmt.Errorf("Can't parse timestamp from \"%s\": %s", fields["TimeStamp"], err.Error())
+	}
+
+	eventId, err := strconv.Atoi(fields["EventID"])
+	if err != nil {
+		return nil, fmt.Errorf("Can't parse EventID from \"%s\": %s", fields["EventID"], err.Error())
+	}
+
+	competitorId, err := strconv.Atoi(fields["CompetitorID"])
+	if err != nil {
+		return nil, fmt.Errorf("Can't parse CompetitorID from \"%s\": %s", fields["CompetitorID"], err.Error())
+	}
+
+	return &Event{
+		Timestamp:    timestamp,
+		EventID:      eventId,
+		CompetitorID: competitorId,
+		ExtraParams:  fields["ExtraParams"],
+		SourceString: line,
+	}, nil
 }
