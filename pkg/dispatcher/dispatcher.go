@@ -18,6 +18,7 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 	bufEventSource := bufio.NewReader(EventSource)
 	var competitorsMap map[int]int = make(map[int]int)
 	var competitors []competitor.Competitor
+
 	for {
 		line, err := bufEventSource.ReadString('\n')
 
@@ -49,6 +50,14 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 		} else {
 			// eww stinky
 			//HandlerMap[evt.EventID](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
+		}
+
+		if evt.EventID == event.EVENT_ID_START_TIME_SET_BY_DRAW {
+			err := HandlerMap[event.EVENT_ID_START_TIME_SET_BY_DRAW](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
+			if err != nil {
+				log.Printf("Skip line \"%s\" because of error: %s", line, err.Error())
+				continue
+			}
 		}
 
 		evt_json, err := json.Marshal(evt)
