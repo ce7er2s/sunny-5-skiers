@@ -64,3 +64,8 @@ var competitorFSM = map[CompetitorStatusType][]CompetitorStatusType{
 	STATUS_NOT_STARTED:  {},
 	STATUS_NOT_FINISHED: {},
 }
+
+var CompetitorStatusToReportStatus = map[CompetitorStatusType]string{
+	STATUS_NOT_FINISHED: "NotFinished",
+	STATUS_NOT_STARTED:  "NotStarted",
+}

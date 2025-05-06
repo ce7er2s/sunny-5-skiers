@@ -11,7 +11,6 @@ import (
 type EventHandleFunc func(c *competitor.Competitor, e *event.Event) error
 
 // EventID = 1 (EVENT_ID_COMPETITOR_REGISTERED)
-// фактически обрабатывается в dispatcher
 func handleRegistration(_ *competitor.Competitor, _ *event.Event) error {
 	return nil
 }
@@ -38,11 +37,6 @@ func handleOnStartLine(c *competitor.Competitor, _ *event.Event) error {
 
 // EventID = 4 (EVENT_ID_COMPETITOR_STARTED)
 func handleStart(c *competitor.Competitor, e *event.Event) error {
-	// если уже дисквалифицировали
-	// if c.Status == competitor.STATUS_NOT_STARTED {
-	//     return nil
-	// }
-
 	if e.Timestamp.Before(c.EndTime) {
 		c.Timings[c.LapCount-1][0] = e.Timestamp
 	} else {
@@ -62,6 +56,15 @@ func handleOnFiringRange(c *competitor.Competitor, e *event.Event) error {
 
 	c.Timings[c.LapCount-1][1] = e.Timestamp
 	c.FiringRange = i - 1
+
+	var shotsAvailable int = 0
+	for _, i := range c.ShootingScore[c.FiringRange] {
+		if i == 0 {
+			shotsAvailable += 1
+		}
+	}
+
+	c.ShotsAvailable = shotsAvailable
 	return c.SetStatus(competitor.STATUS_ON_FIRING_RANGE)
 }
 
@@ -71,13 +74,15 @@ func handleTargetHit(c *competitor.Competitor, e *event.Event) error {
 	if err != nil {
 		return err
 	}
-	// fmt.Println(i)
+
 	c.ShootingScore[c.FiringRange][i-1] = 1
 	return nil
 }
 
 // EventID = 7 (EVENT_ID_COMPETITOR_LEFT_FIRING_RANGE)
 func handleLeftFiringRange(c *competitor.Competitor, e *event.Event) error {
+	c.ShotsTaken += c.ShotsAvailable
+
 	var penaltyLaps int = 0
 	for _, i := range c.ShootingScore[c.FiringRange] {
 		penaltyLaps += i
@@ -86,7 +91,7 @@ func handleLeftFiringRange(c *competitor.Competitor, e *event.Event) error {
 	c.PenaltyLaps = c.FiringLines - penaltyLaps
 
 	if c.PenaltyLaps > 0 {
-		return c.SetStatus(competitor.STATUS_ON_PENALTY_LAP)
+		return c.SetStatus(competitor.STATUS_ON_PENALTY_LAP) // ?
 	} else {
 		return c.SetStatus(competitor.STATUS_ON_MAIN_LAP)
 	}
@@ -111,6 +116,7 @@ func handleLeftPentalty(c *competitor.Competitor, e *event.Event) error {
 	return nil
 }
 
+// EventID = 10 (EVENT_ID_COMPETITOR_ENDED_MAIN_LAP)
 func handleEndMainLap(c *competitor.Competitor, e *event.Event) error {
 	c.LapCount -= 1
 
@@ -119,9 +125,12 @@ func handleEndMainLap(c *competitor.Competitor, e *event.Event) error {
 		return NewOutgoingEvent(OUTGOING_FINISHED)
 	}
 
+	c.Timings[c.LapCount-1][0] = e.Timestamp
+
 	return nil
 }
 
+// EventID = 11 (EVENT_ID_COMPETITOR_CANNOT_CONTINUE)
 func handleCantContinue(c *competitor.Competitor, e *event.Event) error {
 	err := c.SetStatus(competitor.STATUS_NOT_FINISHED)
 	if err != nil {

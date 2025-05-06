@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"sort"
 
 	"github.com/ce7er2s/sunny-5-skiers/pkg/competitor"
 	"github.com/ce7er2s/sunny-5-skiers/pkg/event"
@@ -96,12 +97,38 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 		// fmt.Println(string(evt_json))
 	}
 
-	fmt.Println("DEBUG: competitors info")
-	for k, v := range competitors {
-		fmt.Println(k, v)
+	var reports []Report
+	for _, v := range competitors {
+		reports = append(reports, NewReport(&v, cfg))
 	}
 
-	//for i, c := range competitors {
-	//
-	//}
+	sort.Slice(reports, func(i, j int) bool {
+		return reports[i].Time.Before(reports[j].Time)
+	})
+
+	for _, v := range reports {
+		var status string
+
+		if v.Status == competitor.STATUS_FINISHED {
+			status = v.Time.Format(timeLayout)
+		} else {
+			status = competitor.CompetitorStatusToReportStatus[v.Status]
+		}
+		fmt.Printf("[%s] %d ", status, v.CompetitorID)
+
+		// ewww stinky
+		fmt.Print("[")
+		for i, lap := range v.Laps {
+			fmt.Print(lap.String())
+			if i != len(v.Laps)-1 {
+				fmt.Print(", ")
+			}
+		}
+		fmt.Print("] ")
+
+		// ewww stinky
+		fmt.Print(Lap{v.PenaltyTime, v.PenaltySpeed, cfg.PenaltyLen * v.PenaltyLaps}.String())
+		fmt.Printf(" %d/%d\n", v.ShotsHit, v.ShotsTaken)
+
+	}
 }
