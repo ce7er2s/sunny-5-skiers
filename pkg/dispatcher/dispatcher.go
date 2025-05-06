@@ -2,7 +2,6 @@ package dispatcher
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -10,6 +9,8 @@ import (
 	"github.com/ce7er2s/sunny-5-skiers/pkg/competitor"
 	"github.com/ce7er2s/sunny-5-skiers/pkg/event"
 )
+
+var timeLayout string = "15:04:05.000"
 
 func Dispatch(EventSource io.Reader, cfg Config) {
 	fmt.Println("DEBUG: config info")
@@ -66,30 +67,41 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 			if err != nil {
 				oevent, ok := err.(OutgoingEvent)
 				if ok {
-					fmt.Printf("%s -- Competitor(%d): %s.\n", competitors[competitorsMap[evt.CompetitorID]].EndTime.String(), competitors[competitorsMap[evt.CompetitorID]].CompetitorID, oevent.Error())
+					if oevent.OutgoingID == OUTGOING_FINISHED {
+						fmt.Printf("[%s] 33 %d\n", evt.Timestamp.Format(timeLayout), evt.CompetitorID)
+					}
+					if oevent.OutgoingID == OUTGOING_NOT_STARTED {
+						fmt.Printf("[%s] 32 %d\n", competitors[competitorsMap[evt.CompetitorID]].EndTime.Format(timeLayout), evt.CompetitorID)
+					}
 				} else {
 					log.Printf("Line \"%s\" error: %s", line, err.Error())
 				}
 			}
 		}
 
+		// запоминаем участников, которые не начинали
 		if evt.EventID == event.EVENT_ID_START_TIME_SET_BY_DRAW || evt.EventID == event.EVENT_ID_COMPETITOR_ON_START_LINE || evt.EventID == event.EVENT_ID_COMPETITOR_REGISTERED {
 			competitorsWatch[evt.CompetitorID] = competitorsMap[evt.CompetitorID]
 		}
 
+		// сносим, если они начали
 		if evt.EventID == event.EVENT_ID_COMPETITOR_STARTED {
 			delete(competitorsWatch, evt.CompetitorID)
 		}
 
-		evt_json, err := json.Marshal(evt)
-		if err != nil {
-			log.Fatal(fmt.Sprintf("Can't convert Event to JSON: %s", err.Error()))
-		}
-		fmt.Println(string(evt_json))
+		// evt_json, err := json.Marshal(evt)
+		// if err != nil {
+		//	log.Fatal(fmt.Sprintf("Can't convert Event to JSON: %s", err.Error()))
+		// }
+		// fmt.Println(string(evt_json))
 	}
 
 	fmt.Println("DEBUG: competitors info")
 	for k, v := range competitors {
 		fmt.Println(k, v)
 	}
+
+	//for i, c := range competitors {
+	//
+	//}
 }

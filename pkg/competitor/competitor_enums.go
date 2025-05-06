@@ -55,6 +55,7 @@ var competitorFSM = map[CompetitorStatusType][]CompetitorStatusType{
 
 	STATUS_ON_PENALTY_LAP: {
 		STATUS_ON_MAIN_LAP,
+		STATUS_ON_PENALTY_LAP,
 		STATUS_NOT_FINISHED,
 	},
 

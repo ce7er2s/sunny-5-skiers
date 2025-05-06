@@ -5,11 +5,13 @@ type OutgoingIDType int32
 const (
 	OUTGOING_NOT_STARTED OutgoingIDType = iota
 	OUTGOING_NOT_FINISHED
+	OUTGOING_FINISHED
 )
 
 var OutgoinfIDToString = map[OutgoingIDType]string{
 	OUTGOING_NOT_STARTED:  "OUTGOING_NOT_STARTED",
 	OUTGOING_NOT_FINISHED: "OUTGOING_NOT_FINISHED",
+	OUTGOING_FINISHED:     "OUTGOING_FINISHED",
 }
 
 type OutgoingEvent struct {

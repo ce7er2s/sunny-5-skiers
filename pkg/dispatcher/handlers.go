@@ -1,15 +1,12 @@
 package dispatcher
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/ce7er2s/sunny-5-skiers/pkg/competitor"
 	"github.com/ce7er2s/sunny-5-skiers/pkg/event"
 )
-
-var timeLayout string = "15:04:05.000"
 
 type EventHandleFunc func(c *competitor.Competitor, e *event.Event) error
 
@@ -74,7 +71,7 @@ func handleTargetHit(c *competitor.Competitor, e *event.Event) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(i)
+	// fmt.Println(i)
 	c.ShootingScore[c.FiringRange][i-1] = 1
 	return nil
 }
@@ -118,7 +115,8 @@ func handleEndMainLap(c *competitor.Competitor, e *event.Event) error {
 	c.LapCount -= 1
 
 	if c.LapCount == 0 {
-		return c.SetStatus(competitor.STATUS_FINISHED)
+		c.SetStatus(competitor.STATUS_FINISHED)
+		return NewOutgoingEvent(OUTGOING_FINISHED)
 	}
 
 	return nil
