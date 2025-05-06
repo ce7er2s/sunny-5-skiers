@@ -7,8 +7,8 @@ import (
 	"io"
 	"log"
 
-	"github.com/ce7er2s/sunny_5_skiers/pkg/competitor"
-	"github.com/ce7er2s/sunny_5_skiers/pkg/event"
+	"github.com/ce7er2s/sunny-5-skiers/pkg/competitor"
+	"github.com/ce7er2s/sunny-5-skiers/pkg/event"
 )
 
 func Dispatch(EventSource io.Reader, cfg Config) {
@@ -44,6 +44,7 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 			continue
 		}
 
+		// проверка не стартовавших участников
 		for k, v := range competitorsWatch {
 			if evt.Timestamp.After(competitors[v].EndTime) {
 				competitors[v].SetStatus(competitor.STATUS_NOT_STARTED)
@@ -54,44 +55,31 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 
 		// событие регистрации участника
 		if evt.EventID == event.EVENT_ID_COMPETITOR_REGISTERED {
-			competitors = append(competitors, competitor.NewCompetitor(evt.CompetitorID, cfg.StartTime, cfg.StartTime.Add(cfg.StartDelta)))
+			competitors = append(competitors, competitor.NewCompetitor(evt.CompetitorID, cfg.StartTime, cfg.StartTime.Add(cfg.StartDelta), cfg.Laps, cfg.FiringLines))
 			competitorsMap[evt.CompetitorID] = len(competitors) - 1
 			cfg.StartTime = cfg.StartTime.Add(cfg.StartDelta)
-		} else {
-			// eww stinky
-			//HandlerMap[evt.EventID](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
-		}
 
-		// ^ переместить при реализации всей HandlerMap
-		if evt.EventID == event.EVENT_ID_COMPETITOR_REGISTERED ||
-			evt.EventID == event.EVENT_ID_START_TIME_SET_BY_DRAW ||
-			evt.EventID == event.EVENT_ID_COMPETITOR_ON_START_LINE {
-			err = HandlerMap[evt.EventID](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
-			if err != nil {
-				log.Printf("Skip line \"%s\" because of error: %s", line, err.Error())
-				continue
-			}
-
-			// эти состояния кладутся в проверяемые
 			competitorsWatch[evt.CompetitorID] = competitorsMap[evt.CompetitorID]
-		}
 
-		if evt.EventID == event.EVENT_ID_COMPETITOR_STARTED {
+		} else {
 			err = HandlerMap[evt.EventID](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
 			if err != nil {
 				oevent, ok := err.(OutgoingEvent)
-				if ok && oevent.OutgoingID == OUTGOING_NOT_STARTED {
-					fmt.Printf("%s -- Competitor(%d) disqualified.\n", competitors[competitorsMap[evt.CompetitorID]].EndTime.String(), competitors[competitorsMap[evt.CompetitorID]].CompetitorID)
+				if ok {
+					fmt.Printf("%s -- Competitor(%d): %s.\n", competitors[competitorsMap[evt.CompetitorID]].EndTime.String(), competitors[competitorsMap[evt.CompetitorID]].CompetitorID, oevent.Error())
 				} else {
 					log.Printf("Line \"%s\" error: %s", line, err.Error())
 				}
 			}
-
-			// снимаем с дозора, т.к. либо стартовали, либо нет
-			delete(competitorsWatch, evt.CompetitorID)
 		}
 
-		// проверка не стартовавших участников
+		if evt.EventID == event.EVENT_ID_START_TIME_SET_BY_DRAW || evt.EventID == event.EVENT_ID_COMPETITOR_ON_START_LINE || evt.EventID == event.EVENT_ID_COMPETITOR_REGISTERED {
+			competitorsWatch[evt.CompetitorID] = competitorsMap[evt.CompetitorID]
+		}
+
+		if evt.EventID == event.EVENT_ID_COMPETITOR_STARTED {
+			delete(competitorsWatch, evt.CompetitorID)
+		}
 
 		evt_json, err := json.Marshal(evt)
 		if err != nil {

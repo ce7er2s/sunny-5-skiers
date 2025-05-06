@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ce7er2s/sunny_5_skiers/pkg/competitor"
-	"github.com/ce7er2s/sunny_5_skiers/pkg/event"
+	"github.com/ce7er2s/sunny-5-skiers/pkg/competitor"
+	"github.com/ce7er2s/sunny-5-skiers/pkg/event"
 )
 
 var timeLayout string = "15:04:05.000"

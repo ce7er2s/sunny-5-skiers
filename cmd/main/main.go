@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/ce7er2s/sunny_5_skiers/pkg/dispatcher"
+	"github.com/ce7er2s/sunny-5-skiers/pkg/dispatcher"
 )
 
 var layoutTimeOnly string = "15:04:05"
