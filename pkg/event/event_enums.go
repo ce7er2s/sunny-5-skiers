@@ -17,7 +17,7 @@ const (
 	EVENT_ID_COMPETITOR_CANNOT_CONTINUE
 )
 
-var eventIDToString = map[EventIDType]string{
+var EventIDToString = map[EventIDType]string{
 	EVENT_ID_UNKNOWN:                      "UNKNOWN_EVENT",
 	EVENT_ID_COMPETITOR_REGISTERED:        "COMPETITOR_REGISTERED (1)",
 	EVENT_ID_START_TIME_SET_BY_DRAW:       "START_TIME_SET_BY_DRAW (2)",

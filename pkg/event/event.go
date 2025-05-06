@@ -12,12 +12,11 @@ var eventRegexp *regexp.Regexp = regexp.MustCompile(eventRegexpString)
 var timeLayout string = "15:04:05.000"
 
 // убрать json в конце -- используется для отладки
-
 type Event struct {
-	Timestamp    time.Time `json:"TimeStamp"`
-	EventID      int       `json:"EventID"`
-	CompetitorID int       `json:"CompetitorID"`
-	ExtraParams  string    `json:"ExtraParams"`
+	Timestamp    time.Time   `json:"TimeStamp"`
+	EventID      EventIDType `json:"EventID"`
+	CompetitorID int         `json:"CompetitorID"`
+	ExtraParams  string      `json:"ExtraParams"`
 
 	SourceString string `json:"SourceString"`
 	// исходная из входящих
@@ -39,7 +38,9 @@ func NewEvent(line string) (Event, error) {
 		return Event{}, fmt.Errorf("Can't parse timestamp from \"%s\": %s", fields["TimeStamp"], err.Error())
 	}
 
-	eventId, err := strconv.Atoi(fields["EventID"])
+	id, err := strconv.Atoi(fields["EventID"])
+	eventId := EventIDType(id)
+
 	if err != nil {
 		return Event{}, fmt.Errorf("Can't parse EventID from \"%s\": %s", fields["EventID"], err.Error())
 	}
