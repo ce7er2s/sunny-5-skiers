@@ -7,11 +7,17 @@ import (
 	"io"
 	"log"
 
+	"github.com/ce7er2s/sunny_5_skiers/pkg/competitor"
 	"github.com/ce7er2s/sunny_5_skiers/pkg/event"
 )
 
-func Dispatch(EventSource io.Reader) {
+func Dispatch(EventSource io.Reader, cfg Config) {
+	fmt.Println("DEBUG: config info")
+	fmt.Println(cfg)
+
 	bufEventSource := bufio.NewReader(EventSource)
+	var competitorsMap map[int]int = make(map[int]int)
+	var competitors []competitor.Competitor
 	for {
 		line, err := bufEventSource.ReadString('\n')
 
@@ -29,16 +35,31 @@ func Dispatch(EventSource io.Reader) {
 
 		line = line[:len(line)-1]
 
-		event, err := event.NewEvent(line)
+		evt, err := event.NewEvent(line)
 		if err != nil {
 			log.Printf("Skip line \"%s\" because of error: %s", line, err.Error())
 			continue
 		}
 
-		event_json, err := json.Marshal(event)
+		// событие регистрации участника
+		if evt.EventID == event.EVENT_ID_COMPETITOR_REGISTERED {
+			competitors = append(competitors, competitor.NewCompetitor(evt.CompetitorID, cfg.StartTime))
+			competitorsMap[evt.CompetitorID] = len(competitors) - 1
+			cfg.StartTime = cfg.StartTime.Add(cfg.StartDelta)
+		} else {
+			// eww stinky
+			//HandlerMap[evt.EventID](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
+		}
+
+		evt_json, err := json.Marshal(evt)
 		if err != nil {
 			log.Fatal(fmt.Sprintf("Can't convert Event to JSON: %s", err.Error()))
 		}
-		fmt.Println(string(event_json))
+		fmt.Println(string(evt_json))
+	}
+
+	fmt.Println("DEBUG: competitors info")
+	for k, v := range competitors {
+		fmt.Println(k, v)
 	}
 }
