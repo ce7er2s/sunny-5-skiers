@@ -1,24 +1,17 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
+	"os"
 
-	"github.com/ce7er2s/sunny_5_skiers/pkg/event"
+	"github.com/ce7er2s/sunny_5_skiers/pkg/dispatcher"
 )
 
 func main() {
-	fmt.Println("Start.")
-	evt, err := event.NewEvent("[09:55:00.000] 2 1 10:00:00.000")
+	r, err := os.Open("events")
 	if err != nil {
-		log.Fatal(err.Error())
+		os.Exit(1)
 	}
+	defer r.Close()
 
-	evt_json, err := json.Marshal(*evt)
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Can't convert Event to JSON: %s", err.Error()))
-	}
-
-	fmt.Println(string(evt_json))
+	dispatcher.Dispatch(r)
 }
