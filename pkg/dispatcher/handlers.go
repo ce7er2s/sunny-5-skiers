@@ -36,7 +36,11 @@ func handleSetStartTime(c *competitor.Competitor, e *event.Event) error {
 		return fmt.Errorf("Can't parse timestamp from extraParams: \"%s\": %s", e.ExtraParams, err.Error())
 	}
 
+	duration := c.EndTime.Sub(c.StartTime)
+
 	c.StartTime = timestamp
+	c.EndTime = timestamp.Add(duration)
+	// eww stinky
 	return nil
 }
 
@@ -47,6 +51,11 @@ func handleOnStartLine(c *competitor.Competitor, _ *event.Event) error {
 
 // EventID = 4 (EVENT_ID_COMPETITOR_STARTED)
 func handleStart(c *competitor.Competitor, e *event.Event) error {
+	// если уже дисквалифицировали
+	if c.Status == competitor.STATUS_NOT_STARTED {
+		return nil
+	}
+
 	if e.Timestamp.Before(c.EndTime) {
 		err := c.SetStatus(competitor.STATUS_ON_MAIN_LAP)
 		if err != nil {
@@ -55,6 +64,7 @@ func handleStart(c *competitor.Competitor, e *event.Event) error {
 		// реализовать таймеры для кругов
 		//
 	} else {
+		c.SetStatus(competitor.STATUS_NOT_STARTED)
 		return NewOutgoingEvent(OUTGOING_NOT_STARTED)
 	}
 

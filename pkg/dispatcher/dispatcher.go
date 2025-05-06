@@ -19,6 +19,8 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 	var competitorsMap map[int]int = make(map[int]int)
 	var competitors []competitor.Competitor
 
+	var competitorsWatch map[int]int = make(map[int]int)
+
 	for {
 		line, err := bufEventSource.ReadString('\n')
 
@@ -35,11 +37,19 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 		}
 
 		line = line[:len(line)-1]
-
 		evt, err := event.NewEvent(line)
+
 		if err != nil {
 			log.Printf("Skip line \"%s\" because of error: %s", line, err.Error())
 			continue
+		}
+
+		for k, v := range competitorsWatch {
+			if evt.Timestamp.After(competitors[v].EndTime) {
+				competitors[v].SetStatus(competitor.STATUS_NOT_STARTED)
+				fmt.Printf("%s -- Competitor(%d) disqualified.\n", competitors[v].EndTime.String(), competitors[v].CompetitorID)
+				delete(competitorsWatch, k)
+			}
 		}
 
 		// событие регистрации участника
@@ -55,14 +65,33 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 		// ^ переместить при реализации всей HandlerMap
 		if evt.EventID == event.EVENT_ID_COMPETITOR_REGISTERED ||
 			evt.EventID == event.EVENT_ID_START_TIME_SET_BY_DRAW ||
-			evt.EventID == event.EVENT_ID_COMPETITOR_ON_START_LINE ||
-			evt.EventID == event.EVENT_ID_COMPETITOR_STARTED {
+			evt.EventID == event.EVENT_ID_COMPETITOR_ON_START_LINE {
 			err = HandlerMap[evt.EventID](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
 			if err != nil {
 				log.Printf("Skip line \"%s\" because of error: %s", line, err.Error())
 				continue
 			}
+
+			// эти состояния кладутся в проверяемые
+			competitorsWatch[evt.CompetitorID] = competitorsMap[evt.CompetitorID]
 		}
+
+		if evt.EventID == event.EVENT_ID_COMPETITOR_STARTED {
+			err = HandlerMap[evt.EventID](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
+			if err != nil {
+				oevent, ok := err.(OutgoingEvent)
+				if ok && oevent.OutgoingID == OUTGOING_NOT_STARTED {
+					fmt.Printf("%s -- Competitor(%d) disqualified.\n", competitors[competitorsMap[evt.CompetitorID]].EndTime.String(), competitors[competitorsMap[evt.CompetitorID]].CompetitorID)
+				} else {
+					log.Printf("Line \"%s\" error: %s", line, err.Error())
+				}
+			}
+
+			// снимаем с дозора, т.к. либо стартовали, либо нет
+			delete(competitorsWatch, evt.CompetitorID)
+		}
+
+		// проверка не стартовавших участников
 
 		evt_json, err := json.Marshal(evt)
 		if err != nil {
