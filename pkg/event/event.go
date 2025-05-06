@@ -11,15 +11,13 @@ var eventRegexpString string = `^\[(?P<TimeStamp>\d{2}:\d{2}:\d{2}\.\d{3})\]\s+(
 var eventRegexp *regexp.Regexp = regexp.MustCompile(eventRegexpString)
 var timeLayout string = "15:04:05.000"
 
-// убрать json в конце -- используется для отладки
 type Event struct {
-	Timestamp    time.Time   `json:"TimeStamp"`
-	EventID      EventIDType `json:"EventID"`
-	CompetitorID int         `json:"CompetitorID"`
-	ExtraParams  string      `json:"ExtraParams"`
+	Timestamp    time.Time
+	EventID      EventIDType
+	CompetitorID int
+	ExtraParams  string
 
-	SourceString string `json:"SourceString"`
-	// исходная из входящих
+	SourceString string
 }
 
 func NewEvent(line string) (Event, error) {
@@ -64,27 +62,27 @@ func (e Event) String() string {
 	var description string
 
 	switch e.EventID {
-	case EVENT_ID_COMPETITOR_REGISTERED: // 1
+	case EVENT_ID_COMPETITOR_REGISTERED:
 		description = fmt.Sprintf("The competitor(%d) registered", e.CompetitorID)
-	case EVENT_ID_START_TIME_SET_BY_DRAW: // 2
+	case EVENT_ID_START_TIME_SET_BY_DRAW:
 		description = fmt.Sprintf("The start time for the competitor(%d) was set by a draw to %s", e.CompetitorID, e.ExtraParams)
-	case EVENT_ID_COMPETITOR_ON_START_LINE: // 3
+	case EVENT_ID_COMPETITOR_ON_START_LINE:
 		description = fmt.Sprintf("The competitor(%d) is on the start line", e.CompetitorID)
-	case EVENT_ID_COMPETITOR_STARTED: // 4
+	case EVENT_ID_COMPETITOR_STARTED:
 		description = fmt.Sprintf("The competitor(%d) has started", e.CompetitorID)
-	case EVENT_ID_COMPETITOR_ON_FIRING_RANGE: // 5
+	case EVENT_ID_COMPETITOR_ON_FIRING_RANGE:
 		description = fmt.Sprintf("The competitor(%d) is on the firing range(%s)", e.CompetitorID, e.ExtraParams)
-	case EVENT_ID_TARGET_HIT: // 6
+	case EVENT_ID_TARGET_HIT:
 		description = fmt.Sprintf("The target(%s) has been hit by competitor(%d)", e.ExtraParams, e.CompetitorID)
-	case EVENT_ID_COMPETITOR_LEFT_FIRING_RANGE: // 7
+	case EVENT_ID_COMPETITOR_LEFT_FIRING_RANGE:
 		description = fmt.Sprintf("The competitor(%d) left the firing range", e.CompetitorID)
-	case EVENT_ID_COMPETITOR_ENTERED_PENALTY: // 8
+	case EVENT_ID_COMPETITOR_ENTERED_PENALTY:
 		description = fmt.Sprintf("The competitor(%d) entered the penalty laps", e.CompetitorID)
-	case EVENT_ID_COMPETITOR_LEFT_PENALTY: // 9
+	case EVENT_ID_COMPETITOR_LEFT_PENALTY:
 		description = fmt.Sprintf("The competitor(%d) left the penalty laps", e.CompetitorID)
-	case EVENT_ID_COMPETITOR_ENDED_MAIN_LAP: // 10
+	case EVENT_ID_COMPETITOR_ENDED_MAIN_LAP:
 		description = fmt.Sprintf("The competitor(%d) ended the main lap", e.CompetitorID)
-	case EVENT_ID_COMPETITOR_CANNOT_CONTINUE: // 11
+	case EVENT_ID_COMPETITOR_CANNOT_CONTINUE:
 		description = fmt.Sprintf("The competitor(%d) can`t continue: %s", e.CompetitorID, e.ExtraParams)
 	}
 

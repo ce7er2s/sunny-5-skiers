@@ -14,8 +14,6 @@ import (
 var timeLayout string = "15:04:05.000"
 
 func Dispatch(EventSource io.Reader, cfg Config) {
-	//fmt.Println("DEBUG: config info")
-	//fmt.Println(cfg)
 
 	bufEventSource := bufio.NewReader(EventSource)
 	var competitorsMap map[int]int = make(map[int]int)
@@ -85,7 +83,6 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 			competitorsWatch[evt.CompetitorID] = competitorsMap[evt.CompetitorID]
 		}
 
-		// сносим, если они начали
 		if evt.EventID == event.EVENT_ID_COMPETITOR_STARTED {
 			delete(competitorsWatch, evt.CompetitorID)
 		}

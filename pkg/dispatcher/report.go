@@ -14,22 +14,22 @@ type Lap struct {
 }
 
 func (l Lap) String() string {
-	var t string
-	var s string
+	var lapTime string
+	var lapSpeed string
 
 	if l.Time == 0 {
-		t = ""
+		lapTime = ""
 	} else {
-		t = time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC).Add(l.Time).Format(timeLayout)
+		lapTime = time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC).Add(l.Time).Format(timeLayout)
 	}
 
 	if l.Time == 0 {
-		s = ""
+		lapSpeed = ""
 	} else {
-		s = fmt.Sprintf("%.3f", float64(l.LapLen)/l.Time.Seconds())
+		lapSpeed = fmt.Sprintf("%.3f", float64(l.LapLen)/l.Time.Seconds())
 	}
 
-	return fmt.Sprintf("{%s,%s}", t, s)
+	return fmt.Sprintf("{%s,%s}", lapTime, lapSpeed)
 }
 
 type Report struct {

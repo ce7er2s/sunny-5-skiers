@@ -5,10 +5,10 @@ import (
 )
 
 type Config struct {
-	Laps          int    `json:"laps"`        // Количество кругов для основной дистанции
-	LapLen        int    `json:"lapLen"`      // Длина каждого основного круга в метрах
-	PenaltyLen    int    `json:"penaltyLen"`  // Длина каждого штрафного круга в метрах
-	FiringLines   int    `json:"firingLines"` // Количество огневых рубежей (в задании "per lap", но обычно это общее число или число рубежей до финиша)
+	Laps          int    `json:"laps"`
+	LapLen        int    `json:"lapLen"`
+	PenaltyLen    int    `json:"penaltyLen"`
+	FiringLines   int    `json:"firingLines"`
 	SrcStartTime  string `json:"start"`
 	SrcStartDelta string `json:"startDelta"`
 	StartTime     time.Time
