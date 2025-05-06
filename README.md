@@ -110,7 +110,7 @@ Examples:
 `Resulting table`
 ```
 [NotFinished] 1 [{00:29:03.872, 2.093}, {,}] {00:01:44.296, 0.481} 4/5
-
+```
 
 Stinky-meter = 8
 
