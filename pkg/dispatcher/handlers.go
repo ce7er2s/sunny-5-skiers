@@ -45,8 +45,19 @@ func handleOnStartLine(c *competitor.Competitor, _ *event.Event) error {
 	return c.SetStatus(competitor.STATUS_ON_START_LINE)
 }
 
-// EventID = 4 (EVENT_ID)
-func handleStart(_ *competitor.Competitor, _ *event.Event) error {
+// EventID = 4 (EVENT_ID_COMPETITOR_STARTED)
+func handleStart(c *competitor.Competitor, e *event.Event) error {
+	if e.Timestamp.Before(c.EndTime) {
+		err := c.SetStatus(competitor.STATUS_ON_MAIN_LAP)
+		if err != nil {
+			return err
+		}
+		// реализовать таймеры для кругов
+		//
+	} else {
+		return NewOutgoingEvent(OUTGOING_NOT_STARTED)
+	}
+
 	return nil
 }
 
@@ -54,4 +65,5 @@ var HandlerMap = map[event.EventIDType]EventHandleFunc{
 	event.EVENT_ID_COMPETITOR_REGISTERED:    handleRegistration,
 	event.EVENT_ID_START_TIME_SET_BY_DRAW:   handleSetStartTime,
 	event.EVENT_ID_COMPETITOR_ON_START_LINE: handleOnStartLine,
+	event.EVENT_ID_COMPETITOR_STARTED:       handleStart,
 }

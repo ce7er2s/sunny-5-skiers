@@ -44,7 +44,7 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 
 		// событие регистрации участника
 		if evt.EventID == event.EVENT_ID_COMPETITOR_REGISTERED {
-			competitors = append(competitors, competitor.NewCompetitor(evt.CompetitorID, cfg.StartTime))
+			competitors = append(competitors, competitor.NewCompetitor(evt.CompetitorID, cfg.StartTime, cfg.StartTime.Add(cfg.StartDelta)))
 			competitorsMap[evt.CompetitorID] = len(competitors) - 1
 			cfg.StartTime = cfg.StartTime.Add(cfg.StartDelta)
 		} else {
@@ -52,8 +52,12 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 			//HandlerMap[evt.EventID](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
 		}
 
-		if evt.EventID == event.EVENT_ID_START_TIME_SET_BY_DRAW {
-			err := HandlerMap[event.EVENT_ID_START_TIME_SET_BY_DRAW](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
+		// ^ переместить при реализации всей HandlerMap
+		if evt.EventID == event.EVENT_ID_COMPETITOR_REGISTERED ||
+			evt.EventID == event.EVENT_ID_START_TIME_SET_BY_DRAW ||
+			evt.EventID == event.EVENT_ID_COMPETITOR_ON_START_LINE ||
+			evt.EventID == event.EVENT_ID_COMPETITOR_STARTED {
+			err = HandlerMap[evt.EventID](&(competitors[competitorsMap[evt.CompetitorID]]), &evt)
 			if err != nil {
 				log.Printf("Skip line \"%s\" because of error: %s", line, err.Error())
 				continue

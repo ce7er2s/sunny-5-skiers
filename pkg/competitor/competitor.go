@@ -10,13 +10,15 @@ type Competitor struct {
 	Status       CompetitorStatusType
 	CompetitorID int
 	StartTime    time.Time
+	EndTime      time.Time
 }
 
-func NewCompetitor(id int, startTime time.Time) Competitor {
+func NewCompetitor(id int, startTime time.Time, endTime time.Time) Competitor {
 	return Competitor{
 		Status:       STATUS_REGISTERED,
 		CompetitorID: id,
 		StartTime:    startTime,
+		EndTime:      endTime,
 	}
 }
 
