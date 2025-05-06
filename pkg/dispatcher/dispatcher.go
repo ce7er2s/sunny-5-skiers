@@ -14,8 +14,8 @@ import (
 var timeLayout string = "15:04:05.000"
 
 func Dispatch(EventSource io.Reader, cfg Config) {
-	fmt.Println("DEBUG: config info")
-	fmt.Println(cfg)
+	//fmt.Println("DEBUG: config info")
+	//fmt.Println(cfg)
 
 	bufEventSource := bufio.NewReader(EventSource)
 	var competitorsMap map[int]int = make(map[int]int)
@@ -127,7 +127,7 @@ func Dispatch(EventSource io.Reader, cfg Config) {
 		fmt.Print("] ")
 
 		// ewww stinky
-		fmt.Print(Lap{v.PenaltyTime, v.PenaltySpeed, cfg.PenaltyLen * v.PenaltyLaps}.String())
+		fmt.Print(Lap{v.PenaltyTime, v.PenaltySpeed, cfg.PenaltyLen * v.PenaltyLapsCount}.String())
 		fmt.Printf(" %d/%d\n", v.ShotsHit, v.ShotsTaken)
 
 	}

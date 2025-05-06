@@ -38,11 +38,11 @@ type Report struct {
 	CompetitorID int
 	Laps         []Lap
 
-	PenaltyTime  time.Duration
-	PenaltySpeed float64
-	PenaltyLaps  int
-	ShotsTaken   int
-	ShotsHit     int
+	PenaltyTime      time.Duration
+	PenaltySpeed     float64
+	PenaltyLapsCount int
+	ShotsTaken       int
+	ShotsHit         int
 }
 
 func NewReport(c *competitor.Competitor, cfg Config) Report {
@@ -75,14 +75,14 @@ func NewReport(c *competitor.Competitor, cfg Config) Report {
 	}
 
 	return Report{
-		Time:         elapsedTime,
-		CompetitorID: c.CompetitorID,
-		Laps:         laps,
-		Status:       c.Status,
-		ShotsTaken:   shotsTaken,
-		ShotsHit:     shotsHit,
-		PenaltyTime:  penaltyTime,
-		PenaltySpeed: penaltySpeed,
-		PenaltyLaps:  c.PenaltyLaps,
+		Time:             elapsedTime,
+		CompetitorID:     c.CompetitorID,
+		Laps:             laps,
+		Status:           c.Status,
+		ShotsTaken:       shotsTaken,
+		ShotsHit:         shotsHit,
+		PenaltyTime:      penaltyTime,
+		PenaltySpeed:     penaltySpeed,
+		PenaltyLapsCount: c.PenaltyLapsCount,
 	}
 }

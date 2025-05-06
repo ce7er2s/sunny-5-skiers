@@ -89,6 +89,7 @@ func handleLeftFiringRange(c *competitor.Competitor, e *event.Event) error {
 	}
 
 	c.PenaltyLaps = c.FiringLines - penaltyLaps
+	c.PenaltyLapsCount += c.PenaltyLaps
 
 	if c.PenaltyLaps > 0 {
 		return c.SetStatus(competitor.STATUS_ON_PENALTY_LAP) // ?
